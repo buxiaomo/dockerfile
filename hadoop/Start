@@ -1,0 +1,57 @@
+#!/bin/bash
+# Config SSH
+echo "Config SSH ..."
+mkdir -p ~/.ssh/
+cp /key/id_rsa ~/.ssh/
+cp /key/id_rsa.pub ~/.ssh/
+cp /key/id_rsa.pub ~/.ssh/authorized_keys
+chown -R root. ~/.ssh/*
+chmod 600 ~/.ssh/id_rsa ~/.ssh/authorized_keys
+chmod 644 ~/.ssh/id_rsa.pub
+echo "StrictHostKeyChecking no
+UserKnownHostsFile /root/.ssh/known_hosts" > ~/.ssh/config
+
+echo "Config Hadoop ..."
+# Config Hadoop
+mkdir -p ${HADOOP_HOME}/tmp/dfs/data ${HADOOP_HOME}/tmp/dfs/name
+chown -R root.root ${HADOOP_HOME}/tmp/dfs/data ${HADOOP_HOME}/tmp/dfs/name
+sed -i "s#export JAVA_HOME=\${JAVA_HOME}#export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/#g" ${HADOOP_HOME}/etc/hadoop/hadoop-env.sh
+echo ${SLAVE_CLUSTER} | sed "s/,/\n/g" > ${HADOOP_HOME}/etc/hadoop/slaves
+
+# Config core-site.xml
+sed -i "s|#fs.defaultFS#|${fs_defaultFS}|g" ${HADOOP_HOME}/etc/hadoop/core-site.xml
+
+# Config hdfs-site.xml
+sed -i "s|#dfs.namenode.secondary.http-address#|${dfs_namenode_secondary_http_address}|g" ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml
+sed -i "s|#dfs.replication#|${dfs_replication}|g" ${HADOOP_HOME}/etc/hadoop/hdfs-site.xml
+
+# Config mapred-site.xml
+sed -i "s|#mapreduce.jobhistory.address#|${mapreduce_jobhistory_address}|g" ${HADOOP_HOME}/etc/hadoop/mapred-site.xml
+sed -i "s|#mapreduce.jobhistory.webapp.address#|${mapreduce_jobhistory_webapp_address}|g" ${HADOOP_HOME}/etc/hadoop/mapred-site.xml
+
+# Config yarn-site.xml
+sed -i "s|#yarn.resourcemanager.hostname#|${yarn_resourcemanager_hostname}|g" ${HADOOP_HOME}/etc/hadoop/yarn-site.xml
+
+if [ ${TYPE} == "master" ];then
+    /usr/sbin/sshd
+    for slave in `echo ${SLAVE_CLUSTER} | sed "s/,/\n/g"`
+    do
+        while [ "1" = "1" ]
+        do
+            nc -w 1 ${slave} 22 -z &> /dev/null
+            if [ $? == 0 ];then
+                break;
+            fi
+            echo "wait for ${slave} ..."
+            sleep 1
+        done
+    done
+    /usr/local/hadoop-2.8.0/bin/hdfs namenode -format
+    /usr/local/hadoop-2.8.0/sbin/start-dfs.sh
+    /usr/local/hadoop-2.8.0/sbin/start-yarn.sh
+    /usr/local/hadoop-2.8.0/sbin/mr-jobhistory-daemon.sh start historyserver
+    cat /usr/local/hadoop-2.8.0/logs/*.log
+    exec tailf /usr/local/hadoop-2.8.0/logs/*.log
+else
+    exec /usr/sbin/sshd -D
+fi

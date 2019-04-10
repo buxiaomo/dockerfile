@@ -1,0 +1,9 @@
+name: node01
+data-dir: /var/lib/etcd
+listen-client-urls: http://192.168.108.128:2379,http://127.0.0.1:2379
+advertise-client-urls: http://192.168.108.128:2379,http://127.0.0.1:2379
+listen-peer-urls: http://192.168.108.128:2380
+initial-advertise-peer-urls: http://192.168.108.128:2380
+initial-cluster: etcd-1=http://192.168.108.128:2380,etcd-2=http://192.168.108.129:2380,etcd-3=http://192.168.108.130:2380
+initial-cluster-token: etcd-cluster-token
+initial-cluster-state: new

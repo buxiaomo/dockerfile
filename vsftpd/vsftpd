@@ -1,0 +1,13 @@
+#%PAM-1.0
+session    optional     pam_keyinit.so    force revoke
+#数据库认证
+auth       sufficient   /lib/security/pam_mysql.so user=root passwd=root host=vsftpd_mysql db=vsftpd table=users usercolumn=name passwdcolumn=passwd crypt=2
+#vsftp默认的其余认证
+auth       required     pam_listfile.so item=user sense=deny file=/etc/vsftpd/ftpusers onerr=succeed
+auth       required     pam_shells.so
+auth       include      password-auth
+#授权和认证也是一样的
+account    sufficient   /lib/security/pam_mysql.so user=root passwd=root host=vsftpd_mysql db=vsftpd table=users usercolumn=name passwdcolumn=passwd crypt=2
+account    include      password-auth
+session    required     pam_loginuid.so
+session    include      password-auth

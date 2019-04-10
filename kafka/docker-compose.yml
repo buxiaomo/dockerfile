@@ -1,0 +1,132 @@
+version: '3.4'
+services:
+    node01:
+        image: daocloud.io/buxiaomo/kafka:0.10.2.1
+        networks:
+            kafka:
+        environment:
+            KAFKA_CONFIG: |
+                broker.id=1
+                host.name=10.211.55.75
+                advertised.host.name=10.211.55.75
+                advertised.port=9092
+                zookeeper.connect=10.211.55.75:2181,10.211.55.76:2181,10.211.55.77:2181
+                default.replication.factor=2
+                num.partitions=6
+                delete.topic.enable=true
+                auto.create.topics.enable=true
+                log.cleanup.policy=delete
+        volumes:
+            - /var/lib/kafka:/var/lib/kafka:rw
+            - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                parallelism: 1
+                delay: 10s
+                order: stop-first
+            # resources:
+            #     limits:
+            #         cpus: '2'
+            #         memory: 1G
+            #     reservations:
+            #         cpus: '1'
+            #         memory: 500M
+            placement:
+                constraints:
+                    - node.labels.kafka.node01 == true
+        logging:
+            driver: json-file
+            options:
+                max-file: '3'
+                max-size: 100m
+
+    node02:
+        image: daocloud.io/buxiaomo/kafka:0.10.2.1
+        networks:
+            kafka:
+        environment:
+            KAFKA_CONFIG: |
+                broker.id=2
+                host.name=10.211.55.76
+                advertised.host.name=10.211.55.76
+                advertised.port=9092
+                zookeeper.connect=10.211.55.75:2181,10.211.55.76:2181,10.211.55.77:2181
+                default.replication.factor=2
+                num.partitions=6
+                delete.topic.enable=true
+                auto.create.topics.enable=true
+                log.cleanup.policy=delete
+        volumes:
+            - /var/lib/kafka:/var/lib/kafka:rw
+            - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                parallelism: 1
+                delay: 10s
+                order: stop-first
+            # resources:
+            #     limits:
+            #         cpus: '2'
+            #         memory: 1G
+            #     reservations:
+            #         cpus: '1'
+            #         memory: 500M
+            placement:
+                constraints:
+                    - node.labels.kafka.node02 == true
+        logging:
+            driver: json-file
+            options:
+                max-file: '3'
+                max-size: 100m
+
+    node03:
+        image: daocloud.io/buxiaomo/kafka:0.10.2.1
+        networks:
+            kafka:
+        environment:
+            KAFKA_CONFIG: |
+                broker.id=3
+                host.name=10.211.55.77
+                advertised.host.name=10.211.55.77
+                advertised.port=9092
+                zookeeper.connect=10.211.55.75:2181,10.211.55.76:2181,10.211.55.77:2181
+                default.replication.factor=2
+                num.partitions=6
+                delete.topic.enable=true
+                auto.create.topics.enable=true
+                log.cleanup.policy=delete
+        volumes:
+            - /var/lib/kafka:/var/lib/kafka:rw
+            - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                parallelism: 1
+                delay: 10s
+                order: stop-first
+            # resources:
+            #     limits:
+            #         cpus: '2'
+            #         memory: 1G
+            #     reservations:
+            #         cpus: '1'
+            #         memory: 500M
+            placement:
+                constraints:
+                    - node.labels.kafka.node03 == true
+        logging:
+            driver: json-file
+            options:
+                max-file: '3'
+                max-size: 100m
+
+networks:
+    kafka:
+        external:
+            name: "host"

@@ -1,0 +1,60 @@
+version: '2'
+services:
+    master:
+        image: daocloud.io/buxiaomo/hadoop
+        hostname: master.hadoop.ywclub.org
+        networks:
+            hadoop:
+                aliases:
+                    - master
+        environment:
+            - TYPE=master
+            - dfs_replication=3
+            - SLAVE_CLUSTER=slave01,slave02,slave03
+        # command: ping www.baidu.com
+    slave01:
+        image: daocloud.io/buxiaomo/hadoop
+        hostname: slave01.hadoop.ywclub.org
+        environment:
+            - dfs_replication=3
+        networks:
+            hadoop:
+                aliases:
+                    - slave01
+        # command: ping www.baidu.com
+    slave02:
+        image: daocloud.io/buxiaomo/hadoop
+        hostname: slave02.hadoop.ywclub.org
+        environment:
+            - dfs_replication=3
+        networks:
+            hadoop:
+                aliases:
+                    - slave02
+        # command: ping www.baidu.com
+    slave03:
+        image: daocloud.io/buxiaomo/hadoop
+        hostname: slave03.hadoop.ywclub.org
+        environment:
+            - dfs_replication=3
+        networks:
+            hadoop:
+                aliases:
+                    - slave03
+        # command: ping www.baidu.com
+    nginx:
+        image: f5
+        hostname: nginx.hadoop.ywclub.org
+        ports:
+            - 8088:8088/tcp
+            - 50075:50075/tcp
+            - 50070:50070/tcp
+        volumes:
+            - /docker/nginx.d/:/usr/local/nginx/conf/conf.d/
+        networks:
+            hadoop:
+                aliases:
+                    - nginx
+networks:
+  hadoop:
+    external: true

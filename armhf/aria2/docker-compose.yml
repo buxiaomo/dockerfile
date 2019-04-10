@@ -1,0 +1,155 @@
+version: '3.4'
+services:
+    service:
+        image: ndthuan/aria2-alpine
+        ports:
+            - 80:80/tcp
+        networks:
+            aria2:
+                aliases:
+                    - aria2
+        volumes:
+            - /mnt/data/share/Movie:/downloads:rw
+            - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 100M
+                reservations:
+                    cpus: '0.25'
+                    memory: 50M
+            update_config:
+                order: start-first
+                parallelism: 1
+                delay: 10s
+            placement:
+                constraints:
+                    - node.labels.lnmp == true
+        # healthcheck:
+        #     test: ["CMD-SHELL", "nc -w 1 127.0.0.1 -z 80 || exit 1"]
+        #     interval: 10s
+        #     timeout: 5s
+        #     retries: 3
+        # logging:
+        #     driver: json-file
+        #     options:
+        #         max-file: '3'
+        #         max-size: 100m
+        logging:
+            driver: syslog
+            options:
+                syslog-address: "tcp://10.211.55.61:514"
+                tag: "nginx"
+
+    httpd:
+        image: busybox
+        networks:
+            lnmp:
+                aliases:
+                    - php
+        volumes:
+            - ./:/usr/html
+            - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 100M
+                reservations:
+                    cpus: '0.25'
+                    memory: 50M
+            update_config:
+                order: start-first
+                parallelism: 1
+                delay: 10s
+            placement:
+                constraints:
+                    - node.labels.mysql == true
+        # healthcheck:
+        #     test: ["CMD-SHELL", "curl -f http://localhost:9000/ || exit 1"]
+        #     interval: 10s
+        #     timeout: 5s
+        #     retries: 3
+        # logging:
+        #     driver: json-file
+        #     options:
+        #         max-file: '3'
+        #         max-size: 100m
+        logging:
+            driver: syslog
+            options:
+                syslog-address: "tcp://10.211.55.61:514"
+                tag: "php"
+
+    mysql:
+        image: mysql:5.7.20
+        hostname: mysql
+        networks:
+            lnmp:
+                aliases:
+                    - mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=lnmp
+            - MYSQL_USER=lnmp
+            - MYSQL_PASSWORD=lnmp
+        configs:
+          - source: mysql
+            target: /etc/mysql/mysql.conf.d/mysqld.cnf
+        volumes:
+            - ./mysql/data:/var/lib/mysql
+            - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                # order: start-first
+                parallelism: 1
+                delay: 10s
+            placement:
+                constraints:
+                    - node.labels.lnmp == true
+        # healthcheck:
+        #     test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+        #     interval: 10s
+        #     timeout: 5s
+        #     retries: 3
+        logging:
+            driver: json-file
+            options:
+                max-file: '3'
+                max-size: 100m
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:4.7
+        hostname: phpmyadmin
+        ports:
+            - 3000:80/tcp
+        networks:
+            lnmp:
+                aliases:
+                    - phpmyadmin
+        environment:
+            - PMA_HOST=mysql
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                order: start-first
+                parallelism: 1
+                delay: 10s
+        logging:
+            driver: json-file
+            options:
+                max-file: '3'
+                max-size: 100m
+
+
+networks:
+    lnmp:
+        external: true

@@ -1,0 +1,117 @@
+version: '3.4'
+services:
+    nginx:
+        image: nginx:1.13.6-alpine
+        hostname: nginx
+        ports:
+            - 3000:80/tcp
+        networks:
+            chanzhieps:
+                aliases:
+                    - nginx
+        volumes:
+            - ./nginx/fastcgi.conf:/etc/nginx/fastcgi.conf:ro
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./www:/var/www/html:rw
+            - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                parallelism: 1
+                delay: 10s
+                order: start-first
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 50M
+                reservations:
+                    cpus: '0.25'
+                    memory: 20M
+            # placement:
+            #     constraints:
+            #         - node.labels.mysql == true
+        logging:
+            driver: json-file
+            options:
+                max-file: '3'
+                max-size: 100m
+
+    chanzhieps:
+        image: daocloud.io/buxiaomo/chanzhieps:6.4.1
+        hostname: chanzhieps
+        networks:
+            chanzhieps:
+                aliases:
+                    - chanzhieps
+        environment:
+            - CHANZHI_DB_HOST=mysql
+            - CHANZHI_DB_USER=root
+            - CHANZHI_DB_PASS=root
+        volumes:
+            - ./www:/var/www/html:rw
+            - ./php/session:/session:rw
+            - ./php/php.ini:/usr/local/etc/php/php.ini:ro
+            - ./php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
+            - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                parallelism: 1
+                delay: 10s
+                order: start-first
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 50M
+                reservations:
+                    cpus: '0.25'
+                    memory: 20M
+            # placement:
+            #     constraints:
+            #         - node.role == manager
+        logging:
+            driver: json-file
+            options:
+                max-file: '3'
+                max-size: 100m
+
+    mysql:
+        image: mysql:5.7.20
+        hostname: mysql
+        networks:
+            chanzhieps:
+                aliases:
+                    - mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+        volumes:
+            - ./mysql/data:/var/lib/mysql
+            - ./mysql/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+            - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                parallelism: 1
+                delay: 10s
+                order: stop-first
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 50M
+                reservations:
+                    cpus: '0.25'
+                    memory: 20M
+            placement:
+                constraints:
+                    - node.labels.mysql == true
+        logging:
+            driver: json-file
+            options:
+                max-file: '3'
+                max-size: 100m
+networks:
+    chanzhieps:
+        external: true

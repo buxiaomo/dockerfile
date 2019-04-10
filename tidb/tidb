@@ -1,0 +1,53 @@
+#!/bin/bash
+HOSTNAME=`hostname`
+if [ ${TYPE} == "PD" ];then
+    # 2379 2380
+    exec pd-server --name="${HOSTNAME}" \
+    --data-dir="/data" \
+    --client-urls="http://0.0.0.0:2379" \
+    --advertise-client-urls="http://${HOSTNAME}:2379" \
+    --advertise-peer-urls="http://${HOSTNAME}:2380" \
+    --peer-urls="http://0.0.0.0:2380" \
+    --initial-cluster="${INITIAL_CLUSTER}"
+elif [ ${TYPE} = "TIKV" ];then
+    # 等待PD集群点启动完成
+    # 20160
+    for CLIENT in `echo ${PD} | sed "s/,/\n/g"`
+    do
+        IP=`echo ${CLIENT} | awk -F ':' '{print $1}'`
+        PORT=`echo ${CLIENT} | awk -F ':' '{print $2}'`
+        while [ "1" = "1" ]
+        do
+            nc -w 1 ${IP} ${PORT} -z &> /dev/null
+            if [ $? == 0 ];then
+                break;
+            fi
+            echo "wait for ${CLIENT} ..."
+            sleep 1
+        done
+    done 
+    sleep 5
+    exec tikv-server --addr="0.0.0.0:20160" \
+    --advertise-addr="${HOSTNAME}:20160" \
+    --data-dir="/data" \
+    --pd="${PD}"
+elif [ ${TYPE} = "TIDB" ];then
+    # 等待TIKV集群点启动完成
+    # 10080 4000
+    for CLIENT in `echo ${SLAVE_CLUSTER} | sed "s/,/\n/g"`
+    do
+        while [ "1" = "1" ]
+        do
+            nc -w 1 ${slave} 20160 -z &> /dev/null
+            if [ $? == 0 ];then
+                break;
+            fi
+            echo "wait for ${slave} ..."
+            sleep 1
+        done
+    done 
+    sleep 5
+    exec tidb-server --store=tikv --path="${PD}"
+else
+    echo "Error"
+fi

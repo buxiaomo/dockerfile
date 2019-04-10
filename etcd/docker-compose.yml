@@ -1,0 +1,171 @@
+version: '3'
+services:
+    node01:
+        image: quay.io/coreos/etcd:v2.3.8
+        ports:
+            - 80:80/tcp
+        networks:
+            lnmp:
+                aliases:
+                    - nginx
+        volumes:
+            - ./www:/var/www/html:rw
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+            - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                parallelism: 1
+                delay: 10s
+            placement:
+                constraints:
+                    - node.labels.lnmp == true
+        healthcheck:
+            test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+        logging:
+            driver: json-file
+            options:
+                max-file: '3'
+                max-size: 100m
+
+    php:
+        image: php:5.6.33-fpm-alpine3.4
+        networks:
+            lnmp:
+                aliases:
+                    - php
+        volumes:
+            - ./www:/var/www/html:rw
+            - ./php/ext:/usr/local/etc/php/conf.d:ro
+            - ./php/php.ini:/usr/local/etc/php/php.ini:ro
+            - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                parallelism: 1
+                delay: 10s
+            placement:
+                constraints:
+                    - node.labels.lnmp == true
+        # healthcheck:
+        #     test: ["CMD-SHELL", "curl -f http://localhost:9000/ || exit 1"]
+        #     interval: 10s
+        #     timeout: 5s
+        #     retries: 3
+        logging:
+            driver: json-file
+            options:
+                max-file: '3'
+                max-size: 100m
+
+    mysql:
+        image: mysql:5.7.20
+        hostname: mysql
+        networks:
+            lnmp:
+                aliases:
+                    - mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=lnmp
+            - MYSQL_USER=lnmp
+            - MYSQL_PASSWORD=lnmp
+        volumes:
+            - ./mysql/data:/var/lib/mysql
+            - ./mysql/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+            - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                # order: start-first
+                parallelism: 1
+                delay: 10s
+            placement:
+                constraints:
+                    - node.labels.mysql == true
+        # healthcheck:
+        #     test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+        #     interval: 10s
+        #     timeout: 5s
+        #     retries: 3
+        logging:
+            driver: json-file
+            options:
+                max-file: '3'
+                max-size: 100m
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:4.7
+        hostname: phpmyadmin
+        ports:
+            - 3000:80/tcp
+        networks:
+            lnmp:
+                aliases:
+                    - phpmyadmin
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                # order: start-first
+                parallelism: 1
+                delay: 10s
+            placement:
+                constraints:
+                    - node.labels.mysql == true
+        # healthcheck:
+        #     test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+        #     interval: 10s
+        #     timeout: 5s
+        #     retries: 3
+        logging:
+            driver: json-file
+            options:
+                max-file: '3'
+                max-size: 100m
+
+networks:
+    lnmp:
+        external: true
+
+
+
+
+
+docker run -d -v /usr/share/ca-certificates/:/etc/ssl/certs -p 4001:4001 -p 2380:2380 -p 2379:2379 \
+ --name etcd quay.io/coreos/etcd:v2.3.8 \
+ -name etcd0 \
+ -advertise-client-urls http://192.168.12.50:2379,http://192.168.12.50:4001 \
+ -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 \
+ -initial-advertise-peer-urls http://192.168.12.50:2380 \
+ -listen-peer-urls http://0.0.0.0:2380 \
+ -initial-cluster-token etcd-cluster-1 \
+ -initial-cluster etcd0=http://192.168.12.50:2380,etcd1=http://192.168.12.51:2380,etcd2=http://192.168.12.52:2380 \
+ -initial-cluster-state new
+
+docker run -d -v /usr/share/ca-certificates/:/etc/ssl/certs -p 4001:4001 -p 2380:2380 -p 2379:2379 \
+ --name etcd quay.io/coreos/etcd:v2.3.8 \
+ -name etcd1 \
+ -advertise-client-urls http://192.168.12.51:2379,http://192.168.12.51:4001 \
+ -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 \
+ -initial-advertise-peer-urls http://192.168.12.51:2380 \
+ -listen-peer-urls http://0.0.0.0:2380 \
+ -initial-cluster-token etcd-cluster-1 \
+ -initial-cluster etcd0=http://192.168.12.50:2380,etcd1=http://192.168.12.51:2380,etcd2=http://192.168.12.52:2380 \
+ -initial-cluster-state new
+
+docker run -d -v /usr/share/ca-certificates/:/etc/ssl/certs -p 4001:4001 -p 2380:2380 -p 2379:2379 \
+ --name etcd quay.io/coreos/etcd:v2.3.8 \
+ -name etcd2 \
+ -advertise-client-urls http://192.168.12.52:2379,http://192.168.12.52:4001 \
+ -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 \
+ -initial-advertise-peer-urls http://192.168.12.52:2380 \
+ -listen-peer-urls http://0.0.0.0:2380 \
+ -initial-cluster-token etcd-cluster-1 \
+ -initial-cluster etcd0=http://192.168.12.50:2380,etcd1=http://192.168.12.51:2380,etcd2=http://192.168.12.52:2380 \
+ -initial-cluster-state new

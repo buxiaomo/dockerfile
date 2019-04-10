@@ -1,0 +1,51 @@
+#!/bin/bash
+
+set -e
+
+TARGET_PREFIX="/tmp"
+DATA_DIRECTORY="/var/lib/mysql"
+USER=${MYSQL_USER:-root}
+PASSWORD=${MYSQL_PASSWORD:-root}
+PORT=${MYSQL_PORT:-3306}
+HOST=${MYSQL_HOST:-target}
+
+WEEKNUM=`date +%V`
+WEEKDAY=`date +%u`
+BLOG=/tmp/Xbackup.log
+
+
+case $1 in
+	backup)
+		echo "" > ${BLOG}
+
+		if [ ! -d "$TARGET_PREFIX/${WEEKNUM}" ];then
+			mkdir $BACKUP_PATH/${WEEKNUM}/${WEEKDAY} -p
+			innobackupex --user=${USER} --password=${PASSWORD} --host=${HOST} --port=${PORT} --no-timestamp ${TARGET_PREFIX}/${WEEKNUM}/${WEEKDAY} > ${BLOG}
+		else
+			mkdir $TARGET_PREFIX/${WEEKNUM}/${WEEKDAY}
+			let YDAY=${WEEKDAY}-1
+			innobackupex --user=${USER} --password=${PASSWORD} --host=${HOST} --port=${PORT}  --no-timestamp --incremental ${TARGET_PREFIX}/${WEEKNUM}/${WEEKDAY} --incremental-basedir=${TARGET_PREFIX}/${WEEKNUM}/${YDAY} > ${BLOG}
+		fi
+
+		;;
+	restore)
+		
+		;;
+
+
+	run)
+
+		/bin/bash 
+		;;
+	help)
+		shift
+		usage $*
+		exit 0
+		exit 0
+		;;
+	*)
+		usage
+		exit 0
+		;;
+esac
+
