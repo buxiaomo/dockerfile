@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:2.164.3
+FROM jenkins/jenkins:2.185
 MAINTAINER "Xiao Mo" <root@xiaomo.site>
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
