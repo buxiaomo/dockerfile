@@ -7,6 +7,8 @@ RUN apk add --no-cache ca-certificates wget \
     && update-ca-certificates \
     && mkdir /usr/local/src /usr/local/etc
 
+WORKDIR /usr/local/src
+
 ARG LIBSODIUM_VER=1.0.16
 RUN apk add --no-cache -t build ${BUILD_PKG} \
     && wget https://download.libsodium.org/libsodium/releases/libsodium-$LIBSODIUM_VER.tar.gz \
