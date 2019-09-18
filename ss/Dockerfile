@@ -7,18 +7,18 @@ RUN mkdir /usr/local/src /usr/local/etc
 
 WORKDIR /usr/local/src
 
-ENV LIBSODIUM_VER=1.0.16
+ARG LIBSODIUM_VER=1.0.16
 RUN apk add --no-cache -t build ${BUILD_PKG} \
-    && wget https://download.libsodium.org/libsodium/releases/libsodium-$LIBSODIUM_VER.tar.gz \
+    && wget http://download.libsodium.org/libsodium/releases/libsodium-$LIBSODIUM_VER.tar.gz \
     && tar -xf libsodium-${LIBSODIUM_VER}.tar.gz \
     && cd libsodium-${LIBSODIUM_VER} \
     && ./configure --prefix=/usr && make -j && make install \
     && apk del --no-cache build \
     && rm -rf /usr/local/src/*
 
-ENV MBEDTLS_VER=2.6.0
+ARG MBEDTLS_VER=2.6.0
 RUN apk add --no-cache -t build ${BUILD_PKG} \
-    && wget https://tls.mbed.org/download/mbedtls-${MBEDTLS_VER}-gpl.tgz \
+    && wget http://tls.mbed.org/download/mbedtls-${MBEDTLS_VER}-gpl.tgz \
     && tar -xf mbedtls-${MBEDTLS_VER}-gpl.tgz \
     && cd mbedtls-${MBEDTLS_VER} \
     && make SHARED=1 CFLAGS=-fPIC \
