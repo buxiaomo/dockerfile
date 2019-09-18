@@ -13,7 +13,7 @@ cat > /usr/local/etc/ss-server.json << EOF
   "nameserver": "${nameserver}",
   "mode": "${mode}",
   "mtu": ${mtu},
-  "workers": ${workers
+  "workers": ${workers}
 }
 EOF
 exec /usr/local/bin/ss-server -c /usr/local/etc/ss-server.json
