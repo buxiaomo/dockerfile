@@ -3,13 +3,13 @@ FROM alpine:3.10.2
 ARG BUILD_PKG='gcc perl g++ make file autoconf automake git'
 ARG RUNTIME_PKG='libev-dev c-ares-dev pcre-dev'
 
-RUN mkdir /usr/local/src /usr/local/etc
-
-WORKDIR /usr/local/src
+RUN apk add --no-cache ca-certificates wget \                                                                                                                                                                                                      
+    && update-ca-certificates \
+    && mkdir /usr/local/src /usr/local/etc
 
 ARG LIBSODIUM_VER=1.0.16
 RUN apk add --no-cache -t build ${BUILD_PKG} \
-    && wget http://download.libsodium.org/libsodium/releases/libsodium-$LIBSODIUM_VER.tar.gz \
+    && wget https://download.libsodium.org/libsodium/releases/libsodium-$LIBSODIUM_VER.tar.gz \
     && tar -xf libsodium-${LIBSODIUM_VER}.tar.gz \
     && cd libsodium-${LIBSODIUM_VER} \
     && ./configure --prefix=/usr && make -j && make install \
@@ -18,7 +18,7 @@ RUN apk add --no-cache -t build ${BUILD_PKG} \
 
 ARG MBEDTLS_VER=2.6.0
 RUN apk add --no-cache -t build ${BUILD_PKG} \
-    && wget http://tls.mbed.org/download/mbedtls-${MBEDTLS_VER}-gpl.tgz \
+    && wget https://tls.mbed.org/download/mbedtls-${MBEDTLS_VER}-gpl.tgz \
     && tar -xf mbedtls-${MBEDTLS_VER}-gpl.tgz \
     && cd mbedtls-${MBEDTLS_VER} \
     && make SHARED=1 CFLAGS=-fPIC \
