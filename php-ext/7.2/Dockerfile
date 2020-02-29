@@ -67,3 +67,8 @@ RUN set -ex \
     && pecl install swoole \
     && docker-php-ext-enable swoole \
     && apk del .build
+
+# exif
+RUN docker-php-ext-install exif
+
+RUN apk add --no-cache zip ffmpeg
