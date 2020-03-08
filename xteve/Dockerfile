@@ -16,7 +16,4 @@ VOLUME ["/home/xteve/.xteve", "/tmp/xteve"]
 
 EXPOSE 34400
 
-HEALTHCHECK --interval=30s --start-period=30s --retries=3 --timeout=10s \
-  CMD curl -f http://localhost:34400/ || exit 1
-
 CMD ["/home/xteve/bin/xteve"]
