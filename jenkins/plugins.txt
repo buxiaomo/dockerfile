@@ -79,13 +79,7 @@ subversion
 gitlab-plugin
 gitlab-oauth
 gitlab-hook
-sonar
 pipeline-aggregator-view
-nexus-artifact-uploader
-build-monitor-plugin
-build-view-column
-jacoco
-ssh-agent
 groovy-postbuild
 blueocean-events
 blueocean-i18n
