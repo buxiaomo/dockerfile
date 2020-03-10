@@ -1,6 +1,8 @@
 FROM jenkinsci/jnlp-slave:4.0.1-1
 MAINTAINER "Xiao Mo" <root@xiaomo.site>
 
+USER root
+
 # Docker
 ENV DOCKER_CHANNEL stable
 ENV DOCKER_VERSION 19.03.7
