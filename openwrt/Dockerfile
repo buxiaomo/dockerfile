@@ -1,5 +1,6 @@
 FROM ubuntu:18.04
 
+COPY sources.list /etc/apt/sources.list 
 RUN apt-get update \
     && apt-get install sudo -y \
     && useradd -m -g sudo -u 1000 xiaomo \
@@ -13,3 +14,5 @@ RUN wget -O /usr/local/src/docker.tgz "https://mirrors.tuna.tsinghua.edu.cn/dock
     && rm -rf /usr/local/src/docker.tgz
 
 WORKDIR /home/xiaomo
+
+USER xiaomo
