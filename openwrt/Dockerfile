@@ -4,7 +4,7 @@ COPY sources.list /etc/apt/sources.list
 RUN apt-get update \
     && apt-get install sudo wget -y \
     && useradd -m -g sudo -u 1000 xiaomo \
-    && echo "xiaomo	ALL=(ALL:ALL) NOPASSWD: ALL" /etc/sudoers \
+    && echo "xiaomo	ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers \
     && apt-get clean all
 
 # Docker
