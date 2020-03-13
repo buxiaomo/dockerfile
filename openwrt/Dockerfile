@@ -5,6 +5,7 @@ RUN apt-get update \
     && apt-get install sudo wget -y \
     && useradd -m -g sudo -u 1000 xiaomo \
     && echo "xiaomo	ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers \
+    && echo "nobody	ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers \
     && apt-get clean all
 
 # Docker
@@ -14,6 +15,4 @@ RUN wget -O /usr/local/src/docker.tgz "https://mirrors.tuna.tsinghua.edu.cn/dock
     && tar --strip-components=1 -xvzf /usr/local/src/docker.tgz -C /usr/local/bin \
     && rm -rf /usr/local/src/docker.tgz
 
-WORKDIR /home/xiaomo
-
-USER xiaomo
+USER nobody
