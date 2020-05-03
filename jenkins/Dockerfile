@@ -12,3 +12,5 @@ RUN wget -O /usr/local/src/docker.tgz "https://mirrors.tuna.tsinghua.edu.cn/dock
 
 COPY plugins.txt /tmp/
 RUN /usr/local/bin/install-plugins.sh $(cat /tmp/plugins.txt | tr '\n' ' ')
+
+USER jenkins
