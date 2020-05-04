@@ -83,3 +83,4 @@ display-url-api
 resource-disposer
 jdk-tool
 pipeline-build-step
+generic-webhook-trigger
