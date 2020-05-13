@@ -1,0 +1,35 @@
+name: Jenkins Images
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/jenkins.yml'
+      - 'jenkins'
+  schedule:
+    - cron: '00 18 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Initialization environment
+      run: |
+        sudo apt-get install jq -y
+
+    - name: Docker Login
+      uses: azure/docker-login@v1
+      with:
+        login-server: index.docker.io
+        username: ${{ secrets.DOCKERIO_USERNAME }}
+        password: ${{ secrets.DOCKERIO_PASSWORD }}
+
+    - run: |
+      TAG=$(curl --silent "https://api.github.com/repos/jenkinsci/jenkins/releases/latest" | jq .name)
+      docker build . -t buxiaomo/jenkins:${TAG}
+      docker image
