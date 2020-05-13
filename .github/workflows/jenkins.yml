@@ -32,6 +32,5 @@ jobs:
     - name: Build images
       run: |
         TAG=$(curl --silent "https://api.github.com/repos/jenkinsci/jenkins/releases/latest" | jq -r .name)
-        echo ${TAG}
-        docker build jenkins/ -t buxiaomo/jenkins:${TAG}
-        docker image
+        docker build jenkins/ --build-arg=${TAG} -t buxiaomo/jenkins:${TAG}
+        docker push buxiaomo/jenkins:${TAG}
