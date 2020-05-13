@@ -1,5 +1,4 @@
-FROM jenkins/jenkins:2.235
-MAINTAINER "Xiao Mo" <root@xiaomo.site>
+FROM jenkins/jenkins:2.236
 
 USER root
 
