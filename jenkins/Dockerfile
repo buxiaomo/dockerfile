@@ -1,4 +1,5 @@
-FROM jenkins/jenkins:2.236
+ARG TAG=2.237
+FROM jenkins/jenkins:${TAG}
 
 USER root
 
