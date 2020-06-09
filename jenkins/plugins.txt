@@ -84,3 +84,4 @@ resource-disposer
 jdk-tool
 pipeline-build-step
 generic-webhook-trigger
+blueocean
