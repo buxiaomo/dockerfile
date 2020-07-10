@@ -72,3 +72,6 @@ RUN set -ex \
 RUN docker-php-ext-install exif
 
 RUN apk add --no-cache zip ffmpeg
+
+# zabbix
+RUN docker-php-ext-install ldap gettext
