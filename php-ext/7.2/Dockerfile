@@ -74,4 +74,8 @@ RUN docker-php-ext-install exif
 RUN apk add --no-cache zip ffmpeg
 
 # zabbix
-RUN docker-php-ext-install ldap gettext
+RUN set -ex \
+    && apk add --no-cache openldap-dev gettext-dev \
+    && apk add --no-cache -t .build autoconf g++ make \
+    && docker-php-ext-install ldap gettext bcmath sockets \
+    && apk del -t .build
