@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -x
 if [ -e /var/run/docker.sock ];then
     DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)
