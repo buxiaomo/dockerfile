@@ -42,7 +42,6 @@ authentication-tokens
 pipeline-graph-analysis
 junit
 workflow-aggregator
-gradle
 pipeline-stage-view
 localization-support
 workflow-step-api
@@ -54,7 +53,6 @@ ace-editor
 ssh-slaves
 github-branch-source
 cloudbees-folder
-variant
 kubernetes
 google-oauth-plugin
 pam-auth
@@ -63,7 +61,6 @@ pipeline-milestone-step
 git-server
 build-timeout
 workflow-api
-ant
 docker-commons
 git-client
 pipeline-stage-tags-metadata
@@ -85,3 +82,4 @@ pipeline-build-step
 generic-webhook-trigger
 blueocean
 swarm
+docker-build-step
