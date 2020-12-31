@@ -5,7 +5,6 @@ token-macro
 workflow-multibranch
 workflow-cps-global-lib
 kubernetes-client-api
-configuration-as-code-support
 command-launcher
 lockable-resources
 momentjs
