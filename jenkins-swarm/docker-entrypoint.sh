@@ -1,10 +1,12 @@
 #!/bin/sh
-set -e
-DOCKER_SOCKET=/var/run/docker.sock
-DOCKER_GID=$(stat -c '%g' ${DOCKER_SOCKET})
-if [ ! -d "/home/jenkins" ]; then
-	mkdir -p /home/jenkins
+set -x
+if [ -e /var/run/docker.sock ];then
+    DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)
+    egrep "${DOCKER_GID}" /etc/group >& /dev/null
+    if [ $? -ne 0 ];then  
+        groupadd -g ${DOCKER_GID} docker
+    fi
+    usermod -G docker jenkins
 fi
 
-groupadd -for -g ${DOCKER_GID} jenkins
-exec "$@"
+exec gosu jenkins "$@"
