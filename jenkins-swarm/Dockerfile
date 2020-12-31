@@ -1,7 +1,7 @@
 FROM openjdk:8u212-jre-alpine3.9
 
 # git
-RUN apk add git --no-cache \
+RUN apk add --no-cache git shadow \
     && adduser -h /home/jenkins -u 1000 -D jenkins
 
 # Jenkins Swarm plugins
