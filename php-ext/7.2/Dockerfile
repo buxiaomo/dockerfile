@@ -78,3 +78,5 @@ RUN set -ex \
     && apk add --no-cache -t .build autoconf g++ make \
     && docker-php-ext-install ldap gettext bcmath sockets \
     && apk del -t .build
+
+USER www-data
