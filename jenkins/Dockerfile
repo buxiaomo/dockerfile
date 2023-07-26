@@ -1,7 +1,6 @@
-FROM jenkins/jenkins:2.326-alpine
-
-USER root
-
+FROM jenkins/jenkins:2.415
 COPY plugins.txt /tmp/plugins.txt
+RUN cat /tmp/plugins.txt | xargs jenkins-plugin-cli --plugins
 
-RUN /usr/local/bin/install-plugins.sh $(cat /tmp/plugins.txt | tr '\n' ' ')
+COPY extend.txt /tmp/extend.txt
+RUN cat /tmp/extend.txt | xargs jenkins-plugin-cli --plugins

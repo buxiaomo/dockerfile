@@ -1,0 +1,16 @@
+cloudbees-folder
+antisamy-markup-formatter
+build-timeout
+credentials-binding
+timestamper
+ws-cleanup
+ant
+gradle
+pipeline-stage-view
+github
+github-branch-source
+instance-identity
+localization-zh-cn
+workflow-multibranch
+
+

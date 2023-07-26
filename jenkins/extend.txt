@@ -1,0 +1,9 @@
+configuration-as-code
+swarm
+docker-workflow
+kubernetes-cli
+blueocean
+gitlab-plugin
+jacoco
+git-parameter
+prometheus
