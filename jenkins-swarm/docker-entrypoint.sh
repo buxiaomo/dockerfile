@@ -35,4 +35,10 @@ git config --global http.postBuffer 524288000
 git config --global http.maxRequestBuffer 524288000
 git config --global core.compression 0
 
-exec gosu jenkins "$@"
+# exec gosu jenkins "$@"
+# bash
+if [ $@ == "bash" ];then
+    bash
+fi
+
+exec gosu jenkins java -jar /usr/local/bin/swarm-client.jar -name $HOSTNAME -master $JENKINS_MASTER -username $JENKINS_USER -password $JENKINS_PASS -executors $JENKINS_EXECUTORS -labels $LABELS $JENKINS_OPTS
