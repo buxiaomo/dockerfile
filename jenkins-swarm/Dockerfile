@@ -21,7 +21,10 @@ RUN wget -q https://repo.jenkins-ci.org/releases/org/jenkins-ci/plugins/swarm-cl
 
 # gosu
 ARG GOSU_VERSION=1.16
-RUN wget -q https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -O /bin/gosu \
+
+RUN set -x \
+    && uname -m \
+    && wget -q https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -O /bin/gosu \
     && chmod +x /bin/gosu
 
 # Kubectl
